@@ -1,2 +1,4 @@
 runtime: nodejs22
 env: standard
+build_env_variables:
+  PNPM_CONFIG_ONLY_BUILT_DEPENDENCIES: "msw,sharp"
