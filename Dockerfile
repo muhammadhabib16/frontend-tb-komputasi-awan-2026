@@ -1,29 +1,24 @@
-# 1. Gunakan sistem operasi Linux Alpine yang sangat ringan dan sudah terinstal Node.js versi 20
+# 1. Menggunakan basis sistem operasi Linux Alpine yang ringan dengan Node.js 20
 FROM node:20-alpine
 
-# 2. Instal manajer paket pnpm secara global di dalam kontainer
-RUN npm install -g pnpm
-
-# 3. Tetapkan folder /app sebagai ruang kerja di dalam kontainer
+# 2. Menentukan folder internal kontainer sebagai ruang eksekusi
 WORKDIR /app
 
-# 4. Salin fail daftar pustaka bawaan asisten terlebih dahulu
-COPY package.json pnpm-lock.yaml* ./
+# 3. Menyalin deskriptor pustaka proyek
+COPY package.json package-lock.json* ./
 
-# 5. KUNCI UTAMA: Paksa pnpm meloloskan msw dan sharp sebelum instalasi dimulai
-RUN pnpm config set only-built-dependencies msw,sharp
+# 4. Mengeksekusi instalasi seluruh dependensi menggunakan NPM murni
+RUN npm install
 
-# 6. Eksekusi instalasi pustaka
-RUN pnpm install
-
-# 7. Salin seluruh sisa kode sumber (komponen, halaman web, dll) ke dalam kontainer
+# 5. Menyalin sisa seluruh kode sumber aplikasi ke dalam kontainer
 COPY . .
 
-# 8. Kompilasi aplikasi Next.js menjadi versi produksi yang siap tayang
-RUN pnpm run build
+# 6. Melakukan kompilasi Next.js menjadi kode siap tayang (kinerja produksi)
+RUN npm run build
 
-# 9. Buka gerbang port (Cloud Run akan otomatis mengarahkan lalu lintas ke port ini)
+# 7. Membuka gerbang port standar yang diminta oleh Google Cloud Run
+ENV PORT=8080
 EXPOSE 8080
 
-# 10. Perintah wajib untuk menyalakan peladen web saat kontainer hidup
-CMD ["pnpm", "start"]
+# 8. Menyalakan server Next.js saat kontainer diaktifkan
+CMD ["npm", "start"]
